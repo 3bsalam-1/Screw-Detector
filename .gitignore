@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
+venv/
+ENV/
+env/
+.env
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Conda
+.conda/
+.conda_gpu/
+
+# IDEs
+.vscode/
+.idea/
+
+# YOLO/Ultralytics
+runs/
+*.pt
+!models/*.pt
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Data
+data/sliced/
+Bolts&Washers-3/
+yolo26n.pt
+yolov8s.pt
