@@ -13,7 +13,7 @@ Thank you for your interest in contributing to Screw Detector! This document pro
 
 ## Code of Conduct
 
-This project adheres to a code of conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to contact@screwdetector.dev.
+This project adheres to a code of conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to 3bsalam0@gmail.com.
 
 ## Getting Started
 
@@ -29,8 +29,8 @@ This project adheres to a code of conduct. By participating, you are expected to
 
    ```bash
    # Fork the repository on GitHub
-   git clone https://github.com/3bsalam-1/screw-detector.git
-   cd screw-detector
+   git clone https://github.com/3bsalam-1/Screw-Detector.git
+   cd Screw-Detector
    ```
 
 2. **Create a virtual environment**
@@ -245,7 +245,7 @@ pytest -m "not slow"
 
 - **GitHub Issues**: Report bugs or request features
 - **Discussions**: Ask questions or share ideas
-- **Email**: contact@screwdetector.dev
+- **Email**: 3bsalam0@gmail.com
 
 ## Recognition
 

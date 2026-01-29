@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
-    {name = "Screw Detector Team", email = "contact@screwdetector.dev"}
+    {name = "Screw Detector Team", email = "3bsalam0@gmail.com"}
 ]
 keywords = [
     "object-detection",
@@ -69,10 +69,10 @@ notebook = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/3bsalam-1/screw-detector"
-Documentation = "https://github.com/3bsalam-1/screw-detector#readme"
-Repository = "https://github.com/3bsalam-1/screw-detector"
-"Bug Tracker" = "https://github.com/3bsalam-1/screw-detector/issues"
+Homepage = "https://github.com/3bsalam-1/Screw-Detector"
+Documentation = "https://github.com/3bsalam-1/Screw-Detector#readme"
+Repository = "https://github.com/3bsalam-1/Screw-Detector"
+"Bug Tracker" = "https://github.com/3bsalam-1/Screw-Detector/issues"
 
 [project.scripts]
 screw-train = "src.scripts.train:main"

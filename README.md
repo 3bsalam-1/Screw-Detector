@@ -1,6 +1,6 @@
 # Screw Detector
 
-[![CI](https://github.com/3bsalam-1/screw-detector/workflows/CI/badge.svg)
+[![CI](https://github.com/3bsalam-1/Screw-Detector/workflows/CI/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/screw-detector)
 [![Python](https://img.shields.io/pypi/pyversions/screw-detector)
 [![License](https://img.shields.io/pypi/l/screw-detector)
@@ -30,8 +30,8 @@ pip install screw-detector
 ### From Source
 
 ```bash
-git clone https://github.com/3bsalam-1/screw-detector.git
-cd screw-detector
+git clone https://github.com/3bsalam-1/Screw-Detector.git
+cd Screw-Detector
 pip install -e .
 ```
 
@@ -153,8 +153,8 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 
 ```bash
 # Clone the repository
-git clone https://github.com/3bsalam-1/screw-detector.git
-cd screw-detector
+git clone https://github.com/3bsalam-1/Screw-Detector.git
+cd Screw-Detector
 
 # Create a virtual environment
 python -m venv .venv
@@ -188,7 +188,7 @@ If you use this project in your research, please cite:
   title = {Screw Detector: YOLOv8 + SAHI Detection Pipeline for Tiny Object Optimization},
   author = {Screw Detector Team},
   year = {2024},
-  url = {https://github.com/3bsalam-1/screw-detector}
+  url = {https://github.com/3bsalam-1/Screw-Detector}
 }
 ```
 
@@ -200,5 +200,5 @@ If you use this project in your research, please cite:
 
 ## Contact
 
-- GitHub Issues: [https://github.com/3bsalam-1/screw-detector/issues](https://github.com/3bsalam-1/screw-detector/issues)
-- Email: contact@screwdetector.dev
+- GitHub Issues: [https://github.com/3bsalam-1/Screw-Detector/issues](https://github.com/3bsalam-1/Screw-Detector/issues)
+- Email: 3bsalam0@gmail.com
