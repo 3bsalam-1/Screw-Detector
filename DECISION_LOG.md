@@ -1,3 +1,0 @@
-# Decision Log
-
-The most difficult decision in this project was selecting a final confidence threshold of **0.7** for the SAHI inference pipeline. While lower thresholds (e.g., 0.4 - 0.5) significantly improved recall and ensured almost all screws were detected, they also introduced a higher rate of false positives from background noise and partial features. We ultimately prioritized **production stability** and a high **Precision (94.7%)** over a maximum recall (88.2%), as false alarms in a manufacturing environment can lead to unnecessary line stops and reduced trust in the automated system.

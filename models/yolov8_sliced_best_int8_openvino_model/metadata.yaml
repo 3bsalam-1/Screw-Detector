@@ -1,0 +1,25 @@
+description: Ultralytics YOLOv8_sliced_best model trained on e:\AI\Projects\Internship
+  Tasks\Screw Detector\data\sliced\sliced_data.yaml
+author: Ultralytics
+date: '2026-01-24T21:56:40.586335'
+version: 8.4.6
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 416
+- 416
+names:
+  0: Bolt
+  1: Bottle
+  2: Washer
+args:
+  batch: 1
+  fraction: 1.0
+  half: false
+  int8: true
+  dynamic: false
+  nms: false
+channels: 3

@@ -1,0 +1,9 @@
+names:
+- Bolt
+- Bottle
+- Washer
+nc: 3
+path: data/processed/sliced
+test: test/images
+train: train/images
+val: val/images

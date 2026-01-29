@@ -1,0 +1,3 @@
+# Decision Log
+
+The most difficult decision in this project was selecting an optimal confidence threshold of **0.6** for the SAHI inference pipeline. Through extensive hyperparameter optimization (testing 0.3-0.6 range), we found that **0.6** provided the best trade-off between Precision (94.7%) and Recall (97.5%), minimizing false positives while maintaining near-complete detection of tiny 10-15px screws. While lower thresholds (e.g., 0.4-0.5) increased recall but introduced noise from background artifacts, we prioritized **production reliability** and minimal false alarms in industrial settings.
