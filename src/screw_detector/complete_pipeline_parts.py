@@ -5,11 +5,12 @@
 
 # SECTION 1: PROJECT OVERVIEW & DATASET STATS
 # ------------------------------------------------------------------------------
+from pathlib import Path
+
 import cv2
 import numpy as np
 import pandas as pd
 import yaml
-from pathlib import Path
 from tqdm import tqdm
 
 DATA_YAML = "data/data.yaml"
@@ -65,7 +66,7 @@ train_params = {
     "batch": 4,
     "optimizer": "AdamW",
     "project": "results",
-    "name": "train_baseline_1280"
+    "name": "train_baseline_1280",
 }
 
 # model = YOLO("yolov8s.pt")
@@ -87,16 +88,13 @@ print("| Large (>30px)   | 246      | 240| 2.44%     |")
 
 # SECTION 4: SAHI INFERENCE WITH OPTIMIZED PARAMETERS
 # ------------------------------------------------------------------------------
-from sahi import AutoDetectionModel
-from sahi.predict import get_sliced_prediction
+from sahi import AutoDetectionModel  # noqa: E402
+from sahi.predict import get_sliced_prediction  # noqa: E402
 
 
 def run_sahi_sample(model_path, image_path):
     detection_model = AutoDetectionModel.from_pretrained(
-        model_type="ultralytics",
-        model_path=model_path,
-        confidence_threshold=0.6,
-        device="cpu"
+        model_type="ultralytics", model_path=model_path, confidence_threshold=0.6, device="cpu"
     )
 
     result = get_sliced_prediction(
@@ -107,7 +105,7 @@ def run_sahi_sample(model_path, image_path):
         overlap_height_ratio=0.2,
         overlap_width_ratio=0.2,
         postprocess_type="NMS",
-        postprocess_match_threshold=0.6
+        postprocess_match_threshold=0.6,
     )
     return len(result.object_prediction_list)
 
@@ -121,7 +119,9 @@ print("SAHI logic successfully implemented with 20% overlap and 0.6 Confidence/N
 
 # SECTION 5: DATASET SLICING FOR TRAINING (FULL LOGIC)
 # ------------------------------------------------------------------------------
-def slice_yolo_dataset(data_yaml, out_dir="data/sliced", slice_size=640, overlap=128, visibility_threshold=0.3):
+def slice_yolo_dataset(
+    data_yaml, out_dir="data/sliced", slice_size=640, overlap=128, visibility_threshold=0.3
+):
     with open(data_yaml) as f:
         data_cfg = yaml.safe_load(f)
     print("\n--- SECTION 5: DATASET SLICING IN PROGRESS ---")
@@ -205,7 +205,7 @@ sliced_config = {
     "patience": 30,
     "mosaic": 1.0,
     "project": "results",
-    "name": "train_sliced_final"
+    "name": "train_sliced_final",
 }
 
 # model = YOLO("yolov8s.pt")
@@ -217,14 +217,13 @@ print("Validation mAP@0.5: 98.6% (on tiles)")
 
 # SECTION 7: FINAL 3-WAY COMPARISON MATRIX
 # ------------------------------------------------------------------------------
-import matplotlib.pyplot as plt
 
 results = {
     "Strategy": ["Baseline (1280 Resize)", "Optimized SAHI (1280)", "Sliced SAHI (640)"],
     "Precision": [0.899, 0.916, 0.908],
     "Recall": [0.950, 0.908, 0.906],
     "F1-Score": [0.924, 0.912, 0.907],
-    "Time (ms)": [603, 8671, 2110]
+    "Time (ms)": [603, 8671, 2110],
 }
 df = pd.DataFrame(results)
 
@@ -244,7 +243,9 @@ print(df)
 print("\n--- SECTION 8: EDGE DEPLOYMENT SUMMARY ---")
 print("1. Weight Reduction: 22.5MB (FP32) -> 10.9MB (INT8) via OpenVINO.")
 print("2. Recommendation: Use Baseline 1280 model for real-time mobile/edge devices.")
-print("3. Advantage: SAHI provides higher auditing precision but lacks real-time capability on CPU.")
+print(
+    "3. Advantage: SAHI provides higher auditing precision but lacks real-time capability on CPU."
+)
 
 
 # SECTION 9: CONCLUSION & NEXT STEPS
