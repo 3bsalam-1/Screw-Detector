@@ -11,10 +11,10 @@ __author__ = "Screw Detector Team"
 # Import main classes and functions for easy access
 from .config import Config, load_config
 from .dataset import DatasetStats, slice_yolo_dataset
-from .inference import SAHIInference, BaselineInference
-from .models import YOLOModel, ModelTrainer
+from .inference import BaselineInference, SAHIInference
+from .models import ModelTrainer, YOLOModel
 from .sahi_utils import SAHIPredictor, get_sliced_prediction
-from .utils import visualize_predictions, calculate_metrics
+from .utils import calculate_metrics, visualize_predictions
 
 __all__ = [
     # Version info
@@ -27,15 +27,15 @@ __all__ = [
     "DatasetStats",
     "slice_yolo_dataset",
     # Inference
-    "SAHIInference",
     "BaselineInference",
+    "SAHIInference",
     # Models
-    "YOLOModel",
     "ModelTrainer",
+    "YOLOModel",
     # SAHI Utils
     "SAHIPredictor",
     "get_sliced_prediction",
     # Utils
-    "visualize_predictions",
     "calculate_metrics",
+    "visualize_predictions",
 ]
