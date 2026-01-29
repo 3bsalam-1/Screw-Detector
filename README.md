@@ -202,3 +202,4 @@ If you use this project in your research, please cite:
 
 - GitHub Issues: [https://github.com/3bsalam-1/Screw-Detector/issues](https://github.com/3bsalam-1/Screw-Detector/issues)
 - Email: 3bsalam0@gmail.com
+  
