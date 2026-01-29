@@ -188,7 +188,30 @@ def slice_yolo_dataset(
                 with open(lbl_p, 'r') as f:
                     for line in f:
                         parts = list(map(float, line.split()))
-                        gt_boxes.append({'cls': int(parts[0]), 'bbox': parts[1:]})
+                        if len(parts) < 5:
+                            continue  # Skip invalid lines
+                        cls = int(parts[0])
+                        coords = parts[1:]
+
+                        # Check if format is polygon (even number of coords > 4)
+                        # or standard YOLO bbox (exactly 4 coords)
+                        if len(coords) == 4:
+                            # Standard YOLO format: center_x, center_y, width, height
+                            gt_boxes.append({'cls': cls, 'bbox': coords})
+                        elif len(coords) >= 6 and len(coords) % 2 == 0:
+                            # Polygon format: convert to bounding box
+                            # coords are [x1, y1, x2, y2, x3, y3, ...]
+                            x_coords = coords[0::2]
+                            y_coords = coords[1::2]
+                            min_x, max_x = min(x_coords), max(x_coords)
+                            min_y, max_y = min(y_coords), max(y_coords)
+
+                            # Convert to YOLO format (center_x, center_y, width, height)
+                            center_x = (min_x + max_x) / 2
+                            center_y = (min_y + max_y) / 2
+                            width = max_x - min_x
+                            height = max_y - min_y
+                            gt_boxes.append({'cls': cls, 'bbox': [center_x, center_y, width, height]})
             
             stride = slice_size - overlap
             
