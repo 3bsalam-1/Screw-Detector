@@ -144,7 +144,7 @@ def slice_yolo_dataset(
             h, w, _ = img.shape
 
             # Load GT for clipping logic
-            gt_boxes = []
+            gt_boxes: list[dict[str, list[float] | tuple[float, ...]]] = []
             lbl_p = lbl_dir / (img_p.stem + ".txt")
             if lbl_p.exists():
                 with open(lbl_p) as f:
