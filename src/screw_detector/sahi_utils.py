@@ -115,7 +115,12 @@ class SAHIPredictor:
         """
         results_dict = {}
         for img in images:
-            results_dict[str(img)] = self.predict(img, **kwargs)
+            result = self.predict(img, **kwargs)
+            # Handle the case where predict returns a tuple (detections, image)
+            if isinstance(result, tuple):
+                results_dict[str(img)] = result[0]
+            else:
+                results_dict[str(img)] = result
         return results_dict
 
     def benchmark(
@@ -279,15 +284,37 @@ def optimize_sahi_parameters(
             total_fn = 0
 
             for img_path, gt in zip(validation_images, ground_truth):
-                detections = get_sliced_prediction(
-                    img_path,
-                    model_path,
+                from sahi import AutoDetectionModel
+
+                detection_model = AutoDetectionModel.from_pretrained(
+                    model_type="ultralytics",
+                    model_path=model_path,
                     confidence_threshold=conf,
-                    postprocess_match_threshold=nms,
                     device=device,
                 )
+                detections = get_sliced_prediction(
+                    img_path,
+                    detection_model,
+                    postprocess_match_threshold=nms,
+                )
 
-                tp, fp, fn = match_detections(detections, gt)
+                # Convert detections to list[dict] format for match_detections
+                detections_list = [
+                    {
+                        "class_id": obj_pred.category.id,
+                        "class_name": obj_pred.category.name,
+                        "confidence": obj_pred.score.value,
+                        "bbox": [
+                            obj_pred.bbox.minx,
+                            obj_pred.bbox.miny,
+                            obj_pred.bbox.maxx,
+                            obj_pred.bbox.maxy,
+                        ],
+                    }
+                    for obj_pred in detections.object_prediction_list
+                ]
+
+                tp, fp, fn = match_detections(detections_list, gt)
                 total_tp += tp
                 total_fp += fp
                 total_fn += fn

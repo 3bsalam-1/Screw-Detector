@@ -88,7 +88,7 @@ def main():
         print_validation_results(validation_results)
 
         # Check for critical issues
-        total_issues = sum(
+        total_issues: int = sum(
             len(results["missing_labels"])
             + len(results["empty_labels"])
             + len(results["corrupt_images"])

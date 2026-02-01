@@ -6,6 +6,7 @@ and dataset slicing for training.
 """
 
 from pathlib import Path
+from typing import cast
 
 import cv2
 import numpy as np
@@ -29,7 +30,7 @@ class DatasetStats:
     def _load_data_config(self) -> dict:
         """Load data configuration from YAML file."""
         with open(self.data_yaml_path) as f:
-            return yaml.safe_load(f)
+            return cast(dict, yaml.safe_load(f))
 
     def get_split_stats(self, split: str) -> tuple[int, int, float]:
         """
@@ -181,7 +182,7 @@ def slice_yolo_dataset(
             h, w, _ = img.shape
 
             # Load ground truth boxes
-            gt_boxes: list[dict[str, list[float] | tuple[float, ...]]] = []
+            gt_boxes: list[dict[str, int | list[float] | tuple[float, ...]]] = []
             lbl_p = lbl_dir / (img_p.stem + ".txt")
             if lbl_p.exists():
                 with open(lbl_p) as f:
@@ -263,7 +264,7 @@ def slice_yolo_dataset(
     return tile_counts
 
 
-def validate_dataset(data_yaml: str) -> dict[str, list[str]]:
+def validate_dataset(data_yaml: str) -> dict[str, dict[str, list[str]]]:
     """
     Validate dataset integrity.
 

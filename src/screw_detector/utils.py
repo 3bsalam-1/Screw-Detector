@@ -171,7 +171,7 @@ def calculate_size_based_recall(
     predictions: list[list[dict]],
     ground_truth: list[list[dict]],
     image_sizes: list[tuple[int, int]],
-    size_bins: list[tuple[str, tuple[float, float]]] = None,
+    size_bins: Optional[list[tuple[str, tuple[float, float]]]] = None,
 ) -> dict[str, dict[str, float]]:
     """
     Calculate recall for different object size bins.
@@ -276,7 +276,7 @@ def plot_metrics_comparison(
     ax.set_xticks(x + width)
     ax.set_xticklabels(models)
     ax.legend()
-    ax.set_ylim([0, 1])
+    ax.set_ylim((0, 1))
 
     plt.tight_layout()
 
@@ -316,7 +316,7 @@ def plot_size_based_recall(
     ax.set_xticks(x + width / 2)
     ax.set_xticklabels(size_bins, rotation=15, ha="right")
     ax.legend()
-    ax.set_ylim([0, 1])
+    ax.set_ylim((0, 1))
 
     plt.tight_layout()
 

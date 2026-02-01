@@ -7,7 +7,7 @@ training, inference, and dataset configurations.
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, cast
 
 import yaml
 
@@ -222,4 +222,4 @@ def get_data_config(data_yaml_path: Union[str, Path]) -> dict:
         raise FileNotFoundError(f"Data configuration file not found: {data_yaml_path}")
 
     with open(data_yaml_path) as f:
-        return yaml.safe_load(f)
+        return cast(dict, yaml.safe_load(f))

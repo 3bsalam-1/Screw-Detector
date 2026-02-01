@@ -63,15 +63,16 @@ class BaselineInference:
 
         detections = []
         for result in results:
-            for box in result.boxes:
-                detections.append(
-                    {
-                        "class_id": int(box.cls),
-                        "class_name": result.names[int(box.cls)],
-                        "confidence": float(box.conf),
-                        "bbox": box.xyxy[0].tolist(),
-                    }
-                )
+            if result.boxes is not None:
+                for box in result.boxes:
+                    detections.append(
+                        {
+                            "class_id": int(box.cls),
+                            "class_name": result.names[int(box.cls)],
+                            "confidence": float(box.conf),
+                            "bbox": box.xyxy[0].tolist(),
+                        }
+                    )
 
         return detections
 

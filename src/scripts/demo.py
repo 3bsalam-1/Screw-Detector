@@ -199,7 +199,7 @@ def run_video_demo(args):
     # Initialize video writer
     writer = None
     if args.output:
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        fourcc = cv2.VideoWriter().fourcc(*"mp4v")  # type: ignore[attr-defined]
         writer = cv2.VideoWriter(args.output, fourcc, fps, (width, height))
         print(f"Output will be saved to: {args.output}")
 
