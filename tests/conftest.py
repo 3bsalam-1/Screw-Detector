@@ -2,10 +2,11 @@
 Pytest configuration and fixtures for Screw Detector tests.
 """
 
-import pytest
-from pathlib import Path
-import tempfile
 import shutil
+import tempfile
+from pathlib import Path
+
+import pytest
 
 
 @pytest.fixture
@@ -72,7 +73,7 @@ def sample_config_dict():
         "nc": 3,
         "train": "data/raw/train/images",
         "val": "data/raw/valid/images",
-        "test": "data/raw/test/images"
+        "test": "data/raw/test/images",
     }
 
 
@@ -80,18 +81,8 @@ def sample_config_dict():
 def sample_detections():
     """Sample detection results for testing."""
     return [
-        {
-            "class_id": 0,
-            "class_name": "Bolt",
-            "confidence": 0.95,
-            "bbox": [100, 100, 200, 200]
-        },
-        {
-            "class_id": 2,
-            "class_name": "Washer",
-            "confidence": 0.87,
-            "bbox": [300, 150, 400, 250]
-        }
+        {"class_id": 0, "class_name": "Bolt", "confidence": 0.95, "bbox": [100, 100, 200, 200]},
+        {"class_id": 2, "class_name": "Washer", "confidence": 0.87, "bbox": [300, 150, 400, 250]},
     ]
 
 
@@ -99,12 +90,6 @@ def sample_detections():
 def sample_ground_truth():
     """Sample ground truth annotations for testing."""
     return [
-        {
-            "class_id": 0,
-            "bbox": [105, 105, 195, 195]
-        },
-        {
-            "class_id": 2,
-            "bbox": [305, 155, 395, 245]
-        }
+        {"class_id": 0, "bbox": [105, 105, 195, 195]},
+        {"class_id": 2, "bbox": [305, 155, 395, 245]},
     ]
