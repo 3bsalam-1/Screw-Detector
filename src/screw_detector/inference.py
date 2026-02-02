@@ -64,7 +64,7 @@ class BaselineInference:
         detections = []
         for result in results:
             if result.boxes is not None:
-                for box in result.boxes:
+                for box in result.boxes:  # type: ignore[attr-defined]
                     detections.append(
                         {
                             "class_id": int(box.cls),

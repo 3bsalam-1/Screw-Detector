@@ -289,7 +289,8 @@ def plot_metrics_comparison(
 
 
 def plot_size_based_recall(
-    size_recall_dict: dict[str, dict[str, float]], output_path: Optional[Union[str, Path]] = None
+    size_recall_dict: dict[str, dict[str, dict[str, float]]],
+    output_path: Optional[Union[str, Path]] = None,
 ) -> None:
     """
     Plot size-based recall comparison.

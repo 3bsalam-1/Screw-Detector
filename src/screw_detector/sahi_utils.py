@@ -288,7 +288,7 @@ def optimize_sahi_parameters(
 
                 detection_model = AutoDetectionModel.from_pretrained(
                     model_type="ultralytics",
-                    model_path=model_path,
+                    model_path=str(model_path),
                     confidence_threshold=conf,
                     device=device,
                 )
