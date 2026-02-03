@@ -8,7 +8,7 @@
 
 YOLOv8 + SAHI Detection Pipeline for Tiny Object Optimization
 
-A high-precision object detection system for tiny objects (screws, bolts, washers) using YOLOv8 and Slicing Aided Hyper Inference (SAHI).
+A high-precision object detection system for tiny objects (bolts, washers) using YOLOv8 and Slicing Aided Hyper Inference (SAHI).
 
 ## Features
 
