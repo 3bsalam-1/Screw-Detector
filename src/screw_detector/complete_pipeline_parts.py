@@ -6,6 +6,7 @@
 # SECTION 1: PROJECT OVERVIEW & DATASET STATS
 # ------------------------------------------------------------------------------
 from pathlib import Path
+from typing import Any
 
 import cv2
 import numpy as np
@@ -31,20 +32,19 @@ def get_dataset_stats(img_dir):
         if not lbl_p.exists():
             continue
         img = cv2.imread(str(img_p))
-        if img is None:
-            continue
-        h, w, _ = img.shape
-        with open(lbl_p) as f:
-            for line in f:
-                parts = list(map(float, line.split()))
-                coords = parts[1:]
-                if len(coords) == 4:
-                    bw, bh = coords[2], coords[3]
-                    sizes.append(max(bw * w, bh * h))
-                else:
-                    xs, ys = coords[0::2], coords[1::2]
-                    sizes.append(max((max(xs) - min(xs)) * w, (max(ys) - min(ys)) * h))
-                total_objs += 1
+        if img is not None:
+            h, w, _ = img.shape
+            with open(lbl_p) as f:
+                for line in f:
+                    parts = list(map(float, line.split()))
+                    coords = parts[1:]
+                    if len(coords) == 4:
+                        bw, bh = coords[2], coords[3]
+                        sizes.append(max(bw * w, bh * h))
+                    else:
+                        xs, ys = coords[0::2], coords[1::2]
+                        sizes.append(max((max(xs) - min(xs)) * w, (max(ys) - min(ys)) * h))
+                    total_objs += 1
     return len(images), total_objs, np.mean(sizes)
 
 
@@ -139,53 +139,52 @@ def slice_yolo_dataset(
 
         for img_p in img_dir.glob("*.jpg"):
             img = cv2.imread(str(img_p))
-            if img is None:
-                continue
-            h, w, _ = img.shape
+            if img is not None:
+                h, w, _ = img.shape
 
-            # Load GT for clipping logic
-            gt_boxes: list[dict[str, int | list[float]]] = []
-            lbl_p = lbl_dir / (img_p.stem + ".txt")
-            if lbl_p.exists():
-                with open(lbl_p) as f:
-                    for line in f:
-                        parts = list(map(float, line.split()))
-                        gt_boxes.append({"cls": int(parts[0]), "bbox": parts[1:]})
+                # Load GT for clipping logic
+                gt_boxes: list[dict[str, Any]] = []
+                lbl_p = lbl_dir / (img_p.stem + ".txt")
+                if lbl_p.exists():
+                    with open(lbl_p) as f:
+                        for line in f:
+                            parts = list(map(float, line.split()))
+                            gt_boxes.append({"cls": int(parts[0]), "bbox": parts[1:]})
 
-            stride = slice_size - overlap
-            for y in range(0, h, stride):
-                for x in range(0, w, stride):
-                    x1, y1 = min(x, w - slice_size), min(y, h - slice_size)
-                    x2, y2 = x1 + slice_size, y1 + slice_size
+                stride = slice_size - overlap
+                for y in range(0, h, stride):
+                    for x in range(0, w, stride):
+                        x1, y1 = min(x, w - slice_size), min(y, h - slice_size)
+                        x2, y2 = x1 + slice_size, y1 + slice_size
 
-                    tile = img[y1:y2, x1:x2]
-                    tile_labels = []
+                        tile = img[y1:y2, x1:x2]
+                        tile_labels = []
 
-                    for gt in gt_boxes:
-                        # Convert normalized to absolute
-                        bx, by, bw, bh = gt["bbox"]
-                        gx1, gy1 = (bx - bw / 2) * w, (by - bh / 2) * h
-                        gx2, gy2 = (bx + bw / 2) * w, (by + bh / 2) * h
+                        for gt in gt_boxes:
+                            # Convert normalized to absolute
+                            bx, by, bw, bh = gt["bbox"]
+                            gx1, gy1 = (bx - bw / 2) * w, (by - bh / 2) * h
+                            gx2, gy2 = (bx + bw / 2) * w, (by + bh / 2) * h
 
-                        # Calculate Intersection
-                        ix1, iy1 = max(gx1, x1), max(gy1, y1)
-                        ix2, iy2 = min(gx2, x2), min(gy2, y2)
-                        inter_w, inter_h = max(0, ix2 - ix1), max(0, iy2 - iy1)
-                        inter_area = inter_w * inter_h
-                        gt_area = (gx2 - gx1) * (gy2 - gy1)
+                            # Calculate Intersection
+                            ix1, iy1 = max(gx1, x1), max(gy1, y1)
+                            ix2, iy2 = min(gx2, x2), min(gy2, y2)
+                            inter_w, inter_h = max(0, ix2 - ix1), max(0, iy2 - iy1)
+                            inter_area = inter_w * inter_h
+                            gt_area = (gx2 - gx1) * (gy2 - gy1)
 
-                        if (inter_area / (gt_area + 1e-9)) >= visibility_threshold:
-                            # Relative normalized coordinates
-                            rx = ((ix1 + ix2) / 2 - x1) / slice_size
-                            ry = ((iy1 + iy2) / 2 - y1) / slice_size
-                            rw, rh = inter_w / slice_size, inter_h / slice_size
-                            tile_labels.append(f"{gt['cls']} {rx} {ry} {rw} {rh}")
+                            if (inter_area / (gt_area + 1e-9)) >= visibility_threshold:
+                                # Relative normalized coordinates
+                                rx = ((ix1 + ix2) / 2 - x1) / slice_size
+                                ry = ((iy1 + iy2) / 2 - y1) / slice_size
+                                rw, rh = inter_w / slice_size, inter_h / slice_size
+                                tile_labels.append(f"{gt['cls']} {rx} {ry} {rw} {rh}")
 
-                    tile_name = f"{img_p.stem}_tile_{x1}_{y1}"
-                    cv2.imwrite(str(out_img_path / (tile_name + ".jpg")), tile)
-                    with open(out_lbl_path / (tile_name + ".txt"), "w") as f:
-                        for tl in tile_labels:
-                            f.write(tl + "\n")
+                        tile_name = f"{img_p.stem}_tile_{x1}_{y1}"
+                        cv2.imwrite(str(out_img_path / (tile_name + ".jpg")), tile)
+                        with open(out_lbl_path / (tile_name + ".txt"), "w") as f:
+                            for tl in tile_labels:
+                                f.write(tl + "\n")
 
     print("Sliced Dataset Result: 1,800 Train Tiles generated with background inclusion.")
 

@@ -6,7 +6,7 @@ and dataset slicing for training.
 """
 
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import cv2
 import numpy as np
@@ -82,25 +82,24 @@ class DatasetStats:
                 continue
 
             img = cv2.imread(str(img_p))
-            if img is None:
-                continue
-            h, w, _ = img.shape
+            if img is not None:
+                h, w, _ = img.shape
 
-            with open(lbl_p) as f:
-                for line in f:
-                    parts = list(map(float, line.split()))
-                    coords = parts[1:]
+                with open(lbl_p) as f:
+                    for line in f:
+                        parts = list(map(float, line.split()))
+                        coords = parts[1:]
 
-                    if len(coords) == 4:
-                        # YOLO format: class x_center y_center width height
-                        bw, bh = coords[2], coords[3]
-                        sizes.append(max(bw * w, bh * h))
-                    else:
-                        # Polygon format
-                        xs, ys = coords[0::2], coords[1::2]
-                        sizes.append(max((max(xs) - min(xs)) * w, (max(ys) - min(ys)) * h))
+                        if len(coords) == 4:
+                            # YOLO format: class x_center y_center width height
+                            bw, bh = coords[2], coords[3]
+                            sizes.append(max(bw * w, bh * h))
+                        else:
+                            # Polygon format
+                            xs, ys = coords[0::2], coords[1::2]
+                            sizes.append(max((max(xs) - min(xs)) * w, (max(ys) - min(ys)) * h))
 
-                    total_objs += 1
+                        total_objs += 1
 
         avg_size = np.mean(sizes) if sizes else 0.0
         return len(images), total_objs, avg_size
@@ -175,82 +174,84 @@ def slice_yolo_dataset(
 
         for img_p in tqdm(img_dir.glob("*.jpg"), desc=f"Processing {split}"):
             img = cv2.imread(str(img_p))
-            if img is None:
-                continue
-            h, w, _ = img.shape
+            if img is not None:
+                h, w, _ = img.shape
 
-            # Load ground truth boxes
-            gt_boxes: list[dict[str, int | list[float]]] = []
-            lbl_p = lbl_dir / (img_p.stem + ".txt")
-            if lbl_p.exists():
-                with open(lbl_p) as f:
-                    for line in f:
-                        parts = list(map(float, line.split()))
-                        if len(parts) < 5:
-                            continue  # Skip invalid lines
-                        cls = int(parts[0])
-                        coords = parts[1:]
+                # Load ground truth boxes
+                gt_boxes: list[dict[str, Any]] = []
+                lbl_p = lbl_dir / (img_p.stem + ".txt")
+                if lbl_p.exists():
+                    with open(lbl_p) as f:
+                        for line in f:
+                            parts = list(map(float, line.split()))
+                            if len(parts) < 5:
+                                continue  # Skip invalid lines
+                            cls = int(parts[0])
+                            coords = parts[1:]
 
-                        # Check if format is polygon (even number of coords > 4)
-                        # or standard YOLO bbox (exactly 4 coords)
-                        if len(coords) == 4:
-                            # Standard YOLO format: center_x, center_y, width, height
-                            gt_boxes.append({"cls": cls, "bbox": coords})
-                        elif len(coords) >= 6 and len(coords) % 2 == 0:
-                            # Polygon format: convert to bounding box
-                            # coords are [x1, y1, x2, y2, x3, y3, ...]
-                            x_coords = coords[0::2]
-                            y_coords = coords[1::2]
-                            min_x, max_x = min(x_coords), max(x_coords)
-                            min_y, max_y = min(y_coords), max(y_coords)
+                            # Check if format is polygon (even number of coords > 4)
+                            # or standard YOLO bbox (exactly 4 coords)
+                            if len(coords) == 4:
+                                # Standard YOLO format: center_x, center_y, width, height
+                                gt_boxes.append({"cls": cls, "bbox": coords})
+                            elif len(coords) >= 6 and len(coords) % 2 == 0:
+                                # Polygon format: convert to bounding box
+                                # coords are [x1, y1, x2, y2, x3, y3, ...]
+                                x_coords = coords[0::2]
+                                y_coords = coords[1::2]
+                                min_x, max_x = min(x_coords), max(x_coords)
+                                min_y, max_y = min(y_coords), max(y_coords)
 
-                            # Convert to YOLO format (center_x, center_y, width, height)
-                            center_x = (min_x + max_x) / 2
-                            center_y = (min_y + max_y) / 2
-                            box_width = max_x - min_x
-                            box_height = max_y - min_y
-                            gt_boxes.append(
-                                {"cls": cls, "bbox": [center_x, center_y, box_width, box_height]}
-                            )
+                                # Convert to YOLO format (center_x, center_y, width, height)
+                                center_x = (min_x + max_x) / 2
+                                center_y = (min_y + max_y) / 2
+                                box_width = max_x - min_x
+                                box_height = max_y - min_y
+                                gt_boxes.append(
+                                    {
+                                        "cls": cls,
+                                        "bbox": [center_x, center_y, box_width, box_height],
+                                    }
+                                )
 
-            stride = slice_size - overlap
+                stride = slice_size - overlap
 
-            for y in range(0, h, stride):
-                for x in range(0, w, stride):
-                    x1, y1 = min(x, w - slice_size), min(y, h - slice_size)
-                    x2, y2 = x1 + slice_size, y1 + slice_size
+                for y in range(0, h, stride):
+                    for x in range(0, w, stride):
+                        x1, y1 = min(x, w - slice_size), min(y, h - slice_size)
+                        x2, y2 = x1 + slice_size, y1 + slice_size
 
-                    tile = img[y1:y2, x1:x2]
-                    tile_labels = []
+                        tile = img[y1:y2, x1:x2]
+                        tile_labels = []
 
-                    for gt in gt_boxes:
-                        # Convert normalized to absolute coordinates
-                        bx, by, bw, bh = gt["bbox"]
-                        gx1, gy1 = (bx - bw / 2) * w, (by - bh / 2) * h
-                        gx2, gy2 = (bx + bw / 2) * w, (by + bh / 2) * h
+                        for gt in gt_boxes:
+                            # Convert normalized to absolute coordinates
+                            bx, by, bw, bh = gt["bbox"]
+                            gx1, gy1 = (bx - bw / 2) * w, (by - bh / 2) * h
+                            gx2, gy2 = (bx + bw / 2) * w, (by + bh / 2) * h
 
-                        # Calculate intersection
-                        ix1, iy1 = max(gx1, x1), max(gy1, y1)
-                        ix2, iy2 = min(gx2, x2), min(gy2, y2)
-                        inter_w, inter_h = max(0, ix2 - ix1), max(0, iy2 - iy1)
-                        inter_area = inter_w * inter_h
-                        gt_area = (gx2 - gx1) * (gy2 - gy1)
+                            # Calculate intersection
+                            ix1, iy1 = max(gx1, x1), max(gy1, y1)
+                            ix2, iy2 = min(gx2, x2), min(gy2, y2)
+                            inter_w, inter_h = max(0, ix2 - ix1), max(0, iy2 - iy1)
+                            inter_area = inter_w * inter_h
+                            gt_area = (gx2 - gx1) * (gy2 - gy1)
 
-                        if (inter_area / (gt_area + 1e-9)) >= visibility_threshold:
-                            # Convert to normalized coordinates relative to tile
-                            rx = ((ix1 + ix2) / 2 - x1) / slice_size
-                            ry = ((iy1 + iy2) / 2 - y1) / slice_size
-                            rw, rh = inter_w / slice_size, inter_h / slice_size
-                            tile_labels.append(f"{gt['cls']} {rx} {ry} {rw} {rh}")
+                            if (inter_area / (gt_area + 1e-9)) >= visibility_threshold:
+                                # Convert to normalized coordinates relative to tile
+                                rx = ((ix1 + ix2) / 2 - x1) / slice_size
+                                ry = ((iy1 + iy2) / 2 - y1) / slice_size
+                                rw, rh = inter_w / slice_size, inter_h / slice_size
+                                tile_labels.append(f"{gt['cls']} {rx} {ry} {rw} {rh}")
 
-                    # Only save tiles that have at least one object
-                    if tile_labels:
-                        tile_name = f"{img_p.stem}_tile_{x1}_{y1}"
-                        cv2.imwrite(str(out_img_path / (tile_name + ".jpg")), tile)
-                        with open(out_lbl_path / (tile_name + ".txt"), "w") as f:
-                            for tl in tile_labels:
-                                f.write(tl + "\n")
-                        tile_count += 1
+                        # Only save tiles that have at least one object
+                        if tile_labels:
+                            tile_name = f"{img_p.stem}_tile_{x1}_{y1}"
+                            cv2.imwrite(str(out_img_path / (tile_name + ".jpg")), tile)
+                            with open(out_lbl_path / (tile_name + ".txt"), "w") as f:
+                                for tl in tile_labels:
+                                    f.write(tl + "\n")
+                            tile_count += 1
 
         tile_counts[split] = tile_count
         print(f"{split.upper()}: {tile_count} tiles generated")
@@ -298,15 +299,14 @@ def validate_dataset(data_yaml: str) -> dict[str, dict[str, list[str]]]:
 
             # Check for corrupt images
             img = cv2.imread(str(img_p))
-            if img is None:
-                corrupt_images.append(img_p.name)
-                continue
-
-            # Check for empty labels
-            with open(lbl_p) as f:
-                content = f.read().strip()
-                if not content:
-                    empty_labels.append(img_p.name)
+            if img is not None:
+                # Check for empty labels
+                with open(lbl_p) as f:
+                    content = f.read().strip()
+                    if not content:
+                        empty_labels.append(img_p.name)
+            else:
+                corrupt_images.append(img_p.name)  # type: ignore[unreachable]
 
         validation_results[split] = {
             "missing_labels": missing_labels,

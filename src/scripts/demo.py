@@ -80,7 +80,7 @@ def run_image_demo(args):
     # Read image
     img = cv2.imread(args.input)
     if img is None:
-        print(f"Error: Could not read image: {args.input}")
+        print(f"Error: Could not read image: {args.input}")  # type: ignore[unreachable]
         sys.exit(1)
 
     print(f"\nImage size: {img.shape[1]}x{img.shape[0]}")
