@@ -84,7 +84,6 @@ class DatasetStats:
             img = cv2.imread(str(img_p))
             if img is None:
                 continue
-
             h, w, _ = img.shape
 
             with open(lbl_p) as f:
@@ -178,11 +177,10 @@ def slice_yolo_dataset(
             img = cv2.imread(str(img_p))
             if img is None:
                 continue
-
             h, w, _ = img.shape
 
             # Load ground truth boxes
-            gt_boxes: list[dict[str, list[float] | tuple[float, ...]]] = []
+            gt_boxes: list[dict[str, int | list[float]]] = []
             lbl_p = lbl_dir / (img_p.stem + ".txt")
             if lbl_p.exists():
                 with open(lbl_p) as f:
@@ -209,10 +207,10 @@ def slice_yolo_dataset(
                             # Convert to YOLO format (center_x, center_y, width, height)
                             center_x = (min_x + max_x) / 2
                             center_y = (min_y + max_y) / 2
-                            width = max_x - min_x
-                            height = max_y - min_y
+                            box_width = max_x - min_x
+                            box_height = max_y - min_y
                             gt_boxes.append(
-                                {"cls": cls, "bbox": [center_x, center_y, width, height]}
+                                {"cls": cls, "bbox": [center_x, center_y, box_width, box_height]}
                             )
 
             stride = slice_size - overlap
